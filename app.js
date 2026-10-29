@@ -11,7 +11,7 @@ import conexao from "./db.js";
 import {textoValido, inteiroPositivo} from "./src/utils/validacoes.js";
 import { validarId } from "./src/middlewares/validarId.js";
 import { tratarErro } from "./src/middlewares/tratarErro.js";
-import estudioRoutes from "./src/routes/estudioRoutes.js";
+import estudioRoutes from "./src/routes/estudioRoute.js";
 
 
 const app = express();
