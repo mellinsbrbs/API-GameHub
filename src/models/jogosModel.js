@@ -21,6 +21,6 @@ export function atualizar(id, dados, callback){
 };
 
 export function deletar(id, callback){
-    const sql = "DELETE FROM estudios WHERE id = ?";
-    conexao.query(sql, [id], callback);
+    const sql = "DELETE FROM jogos WHERE id = ?";
+    conexao.query(sql, [req.id], callback);
 };
