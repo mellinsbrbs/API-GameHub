@@ -9,8 +9,10 @@ import cors from "cors";
 import conexao from "./db.js";
 
 import {textoValido, inteiroPositivo} from "./src/utils/validacoes.js";
-import {validarId} from "./src/middlewares/validarld.js";
-import {tratarErro} from "./src/middlewares/tratarErro.js";
+import { validarId } from "./src/middlewares/validarId.js";
+import { tratarErro } from "./src/middlewares/tratarErro.js";
+import estudioRoutes from "./src/routes/estudioRoutes.js";
+
 
 const app = express();
 const PORTA = Number(process.env.PORTA || 3000);
@@ -21,68 +23,7 @@ app.get("/", (req, res) => {
     res.status(200).json({ mensagem: "API do GameHub funcionando" });
 });
 
-app.get("/estudios", (req, res, next) => {
-    conexao.query("SELECT * FROM estudios ORDER BY id", (erro, resultado) => {
-        if (erro) return next(erro);
-        return res.status(200).json(resultado);
-    });
-});
-
-app.get("/estudios/:id", validarId, (req, res, next) => {
-    conexao.query("SELECT * FROM estudios WHERE id = ?", [req.id], (erro, resultado) => {
-        if (erro) return next(erro);
-        if (resultado.length === 0) {
-            return res.status(404).json({ erro: "Estúdio não encontrado" });
-        }
-        return res.status(200).json(resultado[0]);
-    });
-});
-
-app.post("/estudios", (req, res, next) => {
-    const { nome, pais } = req.body ?? {};
-    if (!textoValido(nome, 100) || !textoValido(pais, 60)) {
-        return res.status(400).json({ erro: "Informe nome (até 100 caracteres) e pais (até 60)" });
-    }
-    const dados = { nome: nome.trim(), pais: pais.trim() };
-
-    conexao.query("INSERT INTO estudios (nome, pais) VALUES (?, ?)", [dados.nome, dados.pais], (erro, resultado) => {
-        if (erro) return next(erro);
-        return res.status(201).json({
-            mensagem: "Estúdio cadastrado com sucesso",
-            id: resultado.insertId
-        });
-    });
-});
-
-app.put("/estudios/:id", validarId, (req, res, next) => {
-    const { nome, pais } = req.body ?? {};
-    if (!textoValido(nome, 100) || !textoValido(pais, 60)) {
-        return res.status(400).json({ erro: "Informe nome (até 100 caracteres) e pais (até 60)" });
-    }
-    const dados = { nome: nome.trim(), pais: pais.trim() };
-
-    conexao.query("SELECT * FROM estudios WHERE id = ?", [req.id], (erro, registros) => {
-        if (erro) return next(erro);
-        if (registros.length === 0) {
-            return res.status(404).json({ erro: "Estúdio não encontrado" });
-        }
-        conexao.query("UPDATE estudios SET nome = ?, pais = ? WHERE id = ?", [dados.nome, dados.pais, req.id], (erro, resultado) => {
-            if (erro) return next(erro);
-            return res.status(200).json({ mensagem: "Estúdio atualizado com sucesso" });
-        });
-    });
-});
-
-app.delete("/estudios/:id", validarId, (req, res, next) => {
-    conexao.query("DELETE FROM estudios WHERE id = ?", [req.id], (erro, resultado) => {
-        if (erro) return next(erro);
-        if (resultado.affectedRows === 0) {
-            return res.status(404).json({ erro: "Estúdio não encontrado" });
-        }
-        return res.status(200).json({ mensagem: "Estúdio excluído com sucesso" });
-    });
-});
-
+app.use("/estudios", estudioRoutes);
 
 
 app.get("/jogos", (req, res, next) => {
